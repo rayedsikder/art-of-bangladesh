@@ -23,6 +23,7 @@ contract AOBmarketplace is ERC721Royalty, ERC721URIStorage, Ownable, ReentrancyG
         platformFee = platformFee_;
         baseURI = baseURI_;
     }
+
     function tokenURI(uint256 tokenId)
         public
         view
@@ -45,9 +46,57 @@ contract AOBmarketplace is ERC721Royalty, ERC721URIStorage, Ownable, ReentrancyG
         return platformFee;
     }
     
+    function withdraw(uint256 amount) external onlyOwner {
+        require(address(this).balance >= amount, "AOBmarketplace: Not enought balance");
+        (bool sent, ) = owner().call{value: amount}("");
+        require(sent, "Failed to send Ether");        
+    }
+
+    function createArt(address creator, string calldata uri, uint96 feeNumerator) external payable {
+        require(msg.value >= platformFee, "AOBmarketplace: MSG.VALUE is not platformFee");
+        uint256 tokenId = _tokenIdCounter.current();
+        _tokenIdCounter.increment();
+        _safeMint(creator, tokenId);
+        _setTokenURI(tokenId, uri);
+        _setTokenRoyalty(tokenId, creator, feeNumerator);
+    }
+
+    function buyArt(uint256 tokenId) external payable nonReentrant {
+        
+        uint256 salePrice = _salePrice[tokenId];
+        (address receiver, uint256 royaltyAmount) = royaltyInfo(tokenId, salePrice);
+        
+        require(
+            msg.value >= salePrice + royaltyAmount + platformFee, 
+            "AOBmarketplace: MSG.VALUE is less than sale price"
+        );
+        
+        safeTransferFrom(ownerOf(tokenId), _msgSender(), tokenId);
+        
+        (bool sent, ) = receiver.call{value: royaltyAmount}("");
+        require(sent, "Failed to send Ether");
+        
+        address owner = ownerOf(tokenId);
+        
+        (sent, ) = owner.call{value: salePrice}("");
+        require(sent, "Failed to send Ether");
+    }
+
     function royaltyInfo(uint256 tokenId, uint256 salePrice) public view virtual override returns (address, uint256) {
         require(_exists(tokenId), "AOBmarketplace: Invalid Token Id");
         super.royaltyInfo(tokenId, salePrice);
+    }
+
+    function approveListing(uint256 tokenId, uint256 salePrice) public virtual {
+        address owner = ERC721.ownerOf(tokenId);
+
+        require(
+            _msgSender() == owner || isApprovedForAll(owner, _msgSender()),
+            "ERC721: approve caller is not token owner nor approved for all"
+        );
+
+        _salePrice[tokenId] = salePrice;
+        _approve(address(this), tokenId);
     }
 
     function approve(address to, uint256 tokenId) public virtual override {
