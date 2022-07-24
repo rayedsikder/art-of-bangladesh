@@ -23,7 +23,32 @@ contract AOBmarketplace is ERC721Royalty, ERC721URIStorage, Ownable, ReentrancyG
         platformFee = platformFee_;
         baseURI = baseURI_;
     }
+    function tokenURI(uint256 tokenId)
+        public
+        view
+        override(ERC721, ERC721URIStorage)
+        returns (string memory)
+    {
+        return super.tokenURI(tokenId);
+    }
 
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        override(ERC721, ERC721Royalty)
+        returns (bool)
+    {
+        return super.supportsInterface(interfaceId);
+    }        
+
+    function getPlatformFee() public view virtual returns (uint256) {
+        return platformFee;
+    }
+    
+    function royaltyInfo(uint256 tokenId, uint256 salePrice) public view virtual override returns (address, uint256) {
+        require(_exists(tokenId), "AOBmarketplace: Invalid Token Id");
+        super.royaltyInfo(tokenId, salePrice);
+    }
 
     function approve(address to, uint256 tokenId) public virtual override {
         require(to != address(this), "AOBmarketplace: Cannot approve marketplace without salePrice");
