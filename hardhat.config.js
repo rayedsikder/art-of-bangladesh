@@ -1,5 +1,6 @@
 require("@nomiclabs/hardhat-waffle");
 require("dotenv").config({ path: ".env" });
+var secret = require("./secret.json");
 
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
@@ -31,13 +32,8 @@ module.exports = {
     },
     alfajores: {
       url: "https://alfajores-forno.celo-testnet.org",
-      accounts: [process.env.PRIVATE_KEY],
+      accounts: [secret.PRIVATE_KEY],
       chainId: 44787,
-    },
-    celo: {
-      url: "https://forno.celo.org",
-      accounts: [process.env.PRIVATE_KEY],
-      chainId: 42220,
     },
   },
   solidity: {
