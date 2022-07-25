@@ -35,6 +35,11 @@ module.exports = {
       accounts: [secret.PRIVATE_KEY],
       chainId: 44787,
     },
+    fantom-testnet: {
+      url: "https://rpc.testnet.fantom.network/"
+      accounts: [secret.PRIVATE_KEY],
+      chainId: 0xfa2
+    }
   },
   solidity: {
     version: "0.8.4",
