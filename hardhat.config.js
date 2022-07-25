@@ -1,6 +1,9 @@
 require("@nomiclabs/hardhat-waffle");
-require("dotenv").config({ path: ".env" });
-var secret = require("./secret.json");
+
+const path = require("path");
+require("dotenv").config({
+  path: path.resolve("process.env"),
+});
 
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
@@ -21,24 +24,28 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
   }
 });
 
+// const accounts = {
+//   mnemonic: process.env.MNEMONIC,
+// };
+
 /**
  * @type import('hardhat/config').HardhatUserConfig
  */
 module.exports = {
-  defaultNetwork: "alfajores",
+  defaultNetwork: "fantomtest",
   networks: {
     localhost: {
       url: "http://127.0.0.1:7545",
     },
     alfajores: {
       url: "https://alfajores-forno.celo-testnet.org",
-      accounts: [secret.PRIVATE_KEY],
+      accounts: [process.env.MNEMONIC],
       chainId: 44787,
     },
-    fantom-testnet: {
-      url: "https://rpc.testnet.fantom.network/"
-      accounts: [secret.PRIVATE_KEY],
-      chainId: 0xfa2
+    fantomtest: {
+      url: "https://rpc.testnet.fantom.network",
+      accounts: [process.env.MNEMONIC],
+      chainId: 4002
     }
   },
   solidity: {

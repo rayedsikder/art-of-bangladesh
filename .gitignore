@@ -351,6 +351,7 @@ MigrationBackup/
 
 node_modules
 .env
+process.env
 coverage
 coverage.json
 typechain
@@ -359,6 +360,3 @@ typechain-types
 #Hardhat files
 cache
 artifacts
-
-secret.json
-
